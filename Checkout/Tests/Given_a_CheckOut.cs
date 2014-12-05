@@ -23,18 +23,20 @@ namespace CheckoutKata.Tests
       
 
         [Test]
-        public void We_can_scan_products()
+        public void We_can_scan_products_with_no_discounts()
         {
             var checkOut = new Checkout();
-            Products.ToList().ForEach(product => checkOut.Scan(product).Should().Be(product.Price));
+            Products.ToList().ForEach(product => checkOut.Scan(product, 1).Should().Be(product.Price));
         }
-    }
 
-    public class Checkout
-    {
-        public decimal Scan(Product product)
+        [Test]
+        public void We_can_scan_products_with_discounts()
         {
-            return product.Price;
+            var checkOut = new Checkout();
+            var discount = new MultiBuyDiscount(2, 50.00m);
+            var product = Products.FirstOrDefault();
+            product.Discounts.Add(discount);
+            checkOut.Scan(product, 2).Should().Be(50.00m);
         }
     }
 }
