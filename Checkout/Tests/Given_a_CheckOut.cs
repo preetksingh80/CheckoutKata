@@ -7,36 +7,88 @@ namespace CheckoutKata.Tests
 {
     [TestFixture]
     public class Given_a_CheckOut
-    {  
-        public ICollection<Product> Products { get; set; }
+    {
+        public Product ProductA { get; set; }
+        public Product ProductB { get; set; }
+        public Product ProductC { get; set; }
+        public Product ProductD { get; set; }
         public Given_a_CheckOut()
         {
-            Products = new List<Product>
-            {
-                new Product("a", 50.00m),
-                new Product("b", 30.00m),
-                new Product("c", 20.00m),
-                new Product("d", 15.00m)
-            };
+            ProductA = new Product("a", 50.00m);
+            ProductB = new Product("b", 30.00m);
+            ProductC = new Product("c", 20.00m);
+            ProductD = new Product("d", 15.00m);
+
         }
 
-      
+
+
 
         [Test]
-        public void We_can_scan_products_with_no_discounts()
+        public void We_can_scan_single_product_with_no_discounts()
         {
+            
             var checkOut = new Checkout();
-            Products.ToList().ForEach(product => checkOut.Scan(product, 1).Should().Be(product.Price));
+            checkOut.Scan(ProductA).Should().Be(50);
+            
         }
 
         [Test]
-        public void We_can_scan_products_with_discounts()
+        public void We_can_scan_multiple_products_with_no_discounts()
         {
+            var expectedTotal = new List<Product> {ProductA, ProductB, ProductC, ProductD}.Sum(product => product.Price);
             var checkOut = new Checkout();
-            var discount = new MultiBuyDiscount(2, 50.00m);
-            var product = Products.FirstOrDefault();
-            product.Discounts.Add(discount);
-            checkOut.Scan(product, 2).Should().Be(50.00m);
+            checkOut.Scan(ProductA);
+            checkOut.Scan(ProductB);
+            checkOut.Scan(ProductC);
+            checkOut.Scan(ProductD).Should().Be(expectedTotal);
+
+        }
+
+        [Test]
+        public void We_can_scan_multiple_products_with_discounts()
+        {
+            var productWithDiscount = new Product("x", 50);
+            var discount = new MultiBuyDiscount(2, 50);
+            productWithDiscount.Discounts.Add(discount);
+            var checkOut = new Checkout();
+            checkOut.Scan(ProductA).Should().Be(50);
+            checkOut.Scan(productWithDiscount).Should().Be(100);
+            checkOut.Scan(productWithDiscount).Should().Be(100);
+            checkOut.Scan(ProductA).Should().Be(150);
+         }
+
+        [Test]
+        public void We_can_scan_multiple_products_with_discounts2()
+        {
+            var productWithDiscount = new Product("x", 50);
+            var productWithDiscount2 = new Product("y", 50);
+            var discount = new MultiBuyDiscount(2, 50);
+            productWithDiscount.Discounts.Add(discount);
+            productWithDiscount2.Discounts.Add(discount);
+            var checkOut = new Checkout();
+            checkOut.Scan(productWithDiscount2).Should().Be(50);
+            checkOut.Scan(productWithDiscount).Should().Be(100);
+            checkOut.Scan(productWithDiscount).Should().Be(100);
+            checkOut.Scan(ProductA).Should().Be(150);
+
+
+        }
+
+        [Test]
+        public void We_can_scan_multiple_products_with_discounts3()
+        {
+            var productWithDiscount = new Product("x", 50);
+            var productWithDiscount2 = new Product("y", 50);
+            var discount = new MultiBuyDiscount(2, 50);
+            productWithDiscount.Discounts.Add(discount);
+            productWithDiscount2.Discounts.Add(discount);
+            var checkOut = new Checkout();
+            checkOut.Scan(productWithDiscount2).Should().Be(50);
+            checkOut.Scan(productWithDiscount).Should().Be(100);
+            checkOut.Scan(productWithDiscount).Should().Be(100);
+            checkOut.Scan(ProductA).Should().Be(150);
+            checkOut.Scan(productWithDiscount2).Should().Be(150);
         }
     }
 }
